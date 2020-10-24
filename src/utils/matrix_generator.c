@@ -36,7 +36,8 @@ int **generate_matrix(int n) {
     int **matrix = (int **)malloc(sizeof(int *) * n);
     for (int i = 0; i < n; i++) {
         matrix[i] = (int *)malloc(n * sizeof(int));
-        memset(matrix[i], INT_MAX, n * sizeof(int));
+        for (int j = 0; j < n; j++)
+            matrix[i][j] = INT_MAX;
     }
 
     int idx = 0;
