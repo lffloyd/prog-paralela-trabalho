@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "time.h"
 #include "stdio.h"
+#include "limits.h"
 
 
 int *fisher_yates_shuffle(int *arr, int length) {
@@ -21,8 +22,9 @@ int *fisher_yates_shuffle(int *arr, int length) {
 
 int *generate_random_weights(int n) {
     int *weights = (int *)malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n - 1; i++)
         weights[i] = i;
+    weights[n - 1] = INT_MAX;
 
     return fisher_yates_shuffle(weights, n);
 }
@@ -34,7 +36,7 @@ int **generate_matrix(int n) {
     int **matrix = (int **)malloc(sizeof(int *) * n);
     for (int i = 0; i < n; i++) {
         matrix[i] = (int *)malloc(n * sizeof(int));
-        memset(matrix[i], 0, n * sizeof(int));
+        memset(matrix[i], INT_MAX, n * sizeof(int));
     }
 
     int idx = 0;

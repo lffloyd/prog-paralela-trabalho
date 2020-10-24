@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "stdio.h"
+#include "limits.h"
 #include "../../src/utils/matrix_generator.c"
 
 
@@ -8,7 +9,7 @@ TEST(GenerateMatrixTest, GenerateGraphMatrixWithRandomWeigths) {
     int **mtx = generate_matrix(n);
 
     for (int i = 0; i < n; i++)
-        EXPECT_EQ(0, mtx[i][i]);
+        EXPECT_EQ(INT_MAX, mtx[i][i]);
     
     free_matrix(mtx, n);
 }
