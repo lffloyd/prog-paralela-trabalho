@@ -2,6 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "limits.h"
+#include "stdio.h"
 
 
 int is_valid_edge(int u, int v, int *vertices_in_mst) { 
