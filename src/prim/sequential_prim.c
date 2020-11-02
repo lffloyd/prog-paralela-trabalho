@@ -21,7 +21,7 @@ int prim_minimum_spanning_tree(int **cost, int rows, int columns) {
     memset(vertices_in_mst, 0, rows * sizeof(int));
   
     // Include first vertex in MST 
-    vertices_in_mst[0] = 1; 
+    vertices_in_mst[0] = 1;
   
     int edge_count = 0, minimum_cost = 0; 
     while (edge_count < rows - 1) { 
