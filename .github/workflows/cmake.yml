@@ -16,8 +16,8 @@ jobs:
 
     steps:
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1.4
-      with:
-        cmake-version: '3.18.x'
+      uses: actions/checkout@v2
+    - name: Install
+      run: ./install.sh || exit 1
     - name: Build
-      run: ls -lah && ./build.sh || exit 1
+      run: ./build.sh || exit 1
