@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: actions-setup-cmake
-      uses: jwlawson/actions-setup-cmake@v1.4
+    - name: Build
       with:
         cmake-version: '3.18.x'
       run: ./build.sh || exit 1
