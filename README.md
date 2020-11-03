@@ -1,4 +1,6 @@
 # prog-paralela-trabalho
+[![Actions Status](https://github.com/lffloyd/prog-paralela-trabalho/workflows/CMake/badge.svg)](https://github.com/lffloyd/prog-paralela-trabalho/actions)
+
 Trabalho de implementação da disciplina de Laboratório de Programação Paralela do IC/UFF, período 2020.1.
 
 ## Ambiente
