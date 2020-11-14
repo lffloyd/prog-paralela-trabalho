@@ -45,14 +45,15 @@ def generate_execution_time_graph(csv_filename):
 
 
 def main():
-    seq_csv = sys.argv[1]
-    omp_csv = sys.argv[2]
+    csvs = [sys.argv[i] for i in range(1, len(sys.argv))]
 
     print("Generating individual execution time graphs...")
-    generate_execution_time_graph(seq_csv)
-    generate_execution_time_graph(omp_csv)
+    for csv in csvs:
+        generate_execution_time_graph(csv)
+
     print("Generating combined execution time graph...")
-    generate_combined_execution_time_graph(seq_csv, omp_csv)
+    generate_combined_execution_time_graph(*csvs)
+    
     print(f'Graphs generated at {RESULTS_DIR} folder')
 
 main()

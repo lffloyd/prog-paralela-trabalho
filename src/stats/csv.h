@@ -4,6 +4,6 @@
 #include "stats.h"
 
 int write_csv(Table *table, char *filename);
-int write_mpi_prim_csv();
+int write_mpi_prim_csv(Table *table, char *filename);
 
 #endif
