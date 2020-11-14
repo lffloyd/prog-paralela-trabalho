@@ -17,7 +17,15 @@ jobs:
     steps:
     - name: Setup CMake
       uses: actions/checkout@v2
-    - name: Install
+    - name: Download MPI
+      run: wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.5.tar.gz
+    - name: Unpack MPI
+      run: tar xf openmpi-4.0.5.tar.gz
+    - name: Configure MPI
+      run: cd openmpi-4.0.5 && ./configure --prefix=/usr/local
+    - name: Install MPI
+      run: make all install && cd ..
+    - name: Install Project
       run: ./install.sh || exit 1
-    - name: Build
+    - name: Build Project
       run: ./build.sh || exit 1
