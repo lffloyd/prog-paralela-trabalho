@@ -6,10 +6,10 @@
 #include "../../src/utils/test_utils.h"
 #include "../../src/utils/matrix_generator.h"
 
-
-TEST(GetMinimumCostEdge, ObtainsEdgeWithMinimumCostFromArray) {
+TEST(GetMinimumCostEdge, ObtainsEdgeWithMinimumCostFromArray)
+{
     int n = 3;
-    
+
     Edge *list = create_edge_node(-1, -1, 3);
     Edge *second = create_edge_node(-1, -1, 2);
     list = insert_node(second, list);
@@ -23,27 +23,26 @@ TEST(GetMinimumCostEdge, ObtainsEdgeWithMinimumCostFromArray) {
     free_edge_list(list);
 }
 
-TEST(OmpPrimTest, GetExpectedCostForMST) {
+TEST(OmpPrimTest, GetExpectedCostForMST)
+{
     int nthreads = 4;
     int size = 5;
-    int mtx[TEST_MTX_NROWS][TEST_MTX_NCOLS] = { 
-        { 0, 2, 1, 6, 7 },
-        { 2, 0, 3, 8, 5 },
-        { 6, 3, 0, 2, 7 },
-        { 6, 8, 5, 0, 9 },
-        { 4, 5, 7, 9, 2 } 
-    };
-    
+    int mtx[TEST_MTX_NROWS][TEST_MTX_NCOLS] = {
+        {0, 2, 1, 6, 7},
+        {2, 0, 3, 8, 5},
+        {6, 3, 0, 2, 7},
+        {6, 8, 5, 0, 9},
+        {4, 5, 7, 9, 2}};
+
     int expected = 9;
 
     int **dynamic_mtx = create_dynamic_matrix_from_static(mtx);
 
     int cost = omp_prim_minimum_spanning_tree(
-        dynamic_mtx, 
-        TEST_MTX_NROWS, 
-        TEST_MTX_NCOLS, 
-        nthreads
-    );
-    
+        dynamic_mtx,
+        TEST_MTX_NROWS,
+        TEST_MTX_NCOLS,
+        nthreads);
+
     EXPECT_EQ(cost, expected);
 }
