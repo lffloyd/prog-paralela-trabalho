@@ -3,18 +3,19 @@
 #include "limits.h"
 #include "../../src/utils/matrix_generator.c"
 
-
-TEST(GenerateMatrixTest, GenerateGraphMatrixWithRandomWeigths) {
+TEST(GenerateMatrixTest, GenerateGraphMatrixWithRandomWeigths)
+{
     int n = 5;
     int **mtx = generate_matrix(n);
 
     for (int i = 0; i < n; i++)
         EXPECT_EQ(INT_MAX, mtx[i][i]);
-    
+
     free_matrix(mtx, n);
 }
 
-TEST(FisherYatesShuffle, ShuffleArrayOfNumbers) {
+TEST(FisherYatesShuffle, ShuffleArrayOfNumbers)
+{
     int n = 6;
     int numbers[n] = {1, 2, 3, 4, 5, 6};
 
@@ -25,9 +26,9 @@ TEST(FisherYatesShuffle, ShuffleArrayOfNumbers) {
 
     int count_equals = 0;
     for (int i = 0; i < n; i++)
-      if (result[i] == original_numbers[i])
-        count_equals++;
-    
+        if (result[i] == original_numbers[i])
+            count_equals++;
+
     free(original_numbers);
     EXPECT_NE(n, count_equals);
 }
