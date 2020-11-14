@@ -24,7 +24,7 @@ jobs:
     - name: Configure MPI
       run: cd openmpi-4.0.5 && ./configure --prefix=/usr/local
     - name: Install MPI
-      run: make all install && cd ..
+      run: make install && cd ..
     - name: Install Project
       run: ./install.sh || exit 1
     - name: Build Project
