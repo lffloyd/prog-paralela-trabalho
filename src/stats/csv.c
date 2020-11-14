@@ -33,11 +33,11 @@ int write_mpi_prim_csv(Table *table, char *filename) {
         return 1;
     }
 
-    fprintf(fp, "n,Tempo de Execução,Tempo de Comunicação\n");
+    fprintf(fp, "n,Tempo de Execução,Tempo de Comunicação,\n");
 
     Table *ptr = table;
     while (ptr != NULL) {
-        fprintf(fp, "%d,%g,%g\n", ptr->n, ptr->execution_time, ptr->communication_time);
+        fprintf(fp, "%d,%g,%g,\n", ptr->n, ptr->execution_time, ptr->communication_time);
         ptr = ptr->next;
     }
 
