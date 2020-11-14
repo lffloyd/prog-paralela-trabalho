@@ -80,4 +80,5 @@ void free_matrix(int **mtx, int rows)
 {
     for (int i = 0; i < rows; i++)
         free(mtx[i]);
+    free(mtx);
 }
