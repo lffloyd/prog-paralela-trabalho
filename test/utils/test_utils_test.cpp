@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "stdio.h"
 #include "limits.h"
-#include "../../src/utils/test_utils.c"
+#include "../../src/utils/test_utils.h"
 
 TEST(CreateDynamicMatrixFromStatic, ChecksIfAllElementsAreEqualBetweenTheTwoMatrices)
 {

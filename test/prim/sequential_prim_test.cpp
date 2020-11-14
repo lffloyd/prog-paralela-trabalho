@@ -3,6 +3,7 @@
 #include "limits.h"
 #include "../../src/prim/sequential_prim.c"
 #include "../../src/utils/test_utils.h"
+#include "../../src/stats/stats.h"
 
 TEST(SequentialPrimTest, GetExpectedCostForMST)
 {
@@ -18,6 +19,12 @@ TEST(SequentialPrimTest, GetExpectedCostForMST)
 
     int **dynamic_mtx = create_dynamic_matrix_from_static(mtx);
 
-    int cost = prim_minimum_spanning_tree(dynamic_mtx, TEST_MTX_NROWS, TEST_MTX_NCOLS);
+    int cost = prim_minimum_spanning_tree(
+        dynamic_mtx,
+        TEST_MTX_NROWS,
+        TEST_MTX_NCOLS,
+        TEST_NTRIALS,
+        create_simple_line(-1, 1.0)
+    );
     EXPECT_EQ(cost, expected);
 }

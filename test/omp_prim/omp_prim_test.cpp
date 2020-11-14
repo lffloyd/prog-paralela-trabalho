@@ -42,7 +42,10 @@ TEST(OmpPrimTest, GetExpectedCostForMST)
         dynamic_mtx,
         TEST_MTX_NROWS,
         TEST_MTX_NCOLS,
-        nthreads);
+        nthreads,
+        TEST_NTRIALS,
+        create_simple_line(-1, 1.0)
+    );
 
     EXPECT_EQ(cost, expected);
 }

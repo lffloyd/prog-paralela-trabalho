@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "stdio.h"
 #include "limits.h"
-#include "../../src/utils/matrix_generator.c"
+#include "../../src/utils/matrix_generator.h"
 
 TEST(GenerateMatrixTest, GenerateGraphMatrixWithRandomWeigths)
 {
