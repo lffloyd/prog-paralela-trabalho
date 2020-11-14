@@ -57,11 +57,11 @@ int main(int argc, char *argv[])
 
     sprintf(filename, "%s/sequential_prim.csv", RESULTS_DIR);
     printf("Saving %s...\n", filename);
-    write_sequential_prim_csv(sequential_table, filename);
+    write_csv(sequential_table, filename);
 
     sprintf(filename, "%s/omp_prim_nthreads%d.csv", RESULTS_DIR, nthreads);
     printf("Saving %s...\n", filename);
-    write_sequential_prim_csv(omp_table, filename);
+    write_csv(omp_table, filename);
 
     free(filename);
     

@@ -1,8 +1,8 @@
-#include "stdlib.h"
-#include "stdio.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include "csv.h"
 
-int write_sequential_prim_csv(Table *table, char *filename) {
+int write_csv(Table *table, char *filename) {
     FILE *fp;
 
     if ((fp = fopen(filename, "w")) == NULL)
@@ -11,20 +11,16 @@ int write_sequential_prim_csv(Table *table, char *filename) {
         return 1;
     }
 
-    fprintf(fp, "n,Tempo de Execução\n");
+    fprintf(fp, "n,Tempo de Execução,\n");
 
     Table *ptr = table;
     while (ptr != NULL) {
-        fprintf(fp, "%d,%g\n", ptr->n, ptr->execution_time);
+        fprintf(fp, "%d,%g,\n", ptr->n, ptr->execution_time);
         ptr = ptr->next;
     }
 
     fclose(fp);
 
-    return 0;
-}
-
-int write_omp_prim_csv(Table *table, char *filename) {
     return 0;
 }
 
