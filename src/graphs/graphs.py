@@ -1,3 +1,8 @@
+'''
+Usage:
+python3 src/graphs/graphs.py arquivo1.csv arquivo2.csv arquivo3.csv
+'''
+
 from matplotlib import pyplot as plt
 import numpy
 import sys
