@@ -29,7 +29,7 @@ def generate_combined_execution_time_graph(*args):
     
     ax.legend(tuple(plots), tuple(legends), loc="upper left", shadow=True)
 
-    ax.set(xlabel="n", ylabel="tempo de execução (s)")
+    ax.set(xlabel="n", ylabel="tempo (s)")
 
     filename = f'{RESULTS_DIR}/combined_execution_time.png'
     os.makedirs(os.path.dirname(filename), exist_ok=True)
