@@ -64,6 +64,8 @@ int omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthrea
         if (edges != NULL) {
             Edge *best_edge = get_minimum_cost_edge(edges, nthreads);
             
+            printf("Edge %d:(%d, %d) cost: %d \n", edge_count, best_edge->a, best_edge->b, best_edge->cost);
+
             minimum_cost = minimum_cost + best_edge->cost; 
             vertices_in_mst[best_edge->b] = vertices_in_mst[best_edge->a] = 1;
             edge_count++;  
