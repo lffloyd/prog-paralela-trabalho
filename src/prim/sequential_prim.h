@@ -4,6 +4,6 @@
 #include "../utils/prim.h"
 #include "../stats/stats.h"
 
-int prim_minimum_spanning_tree(int **cost, int rows, int columns, int ntrials, Table *line);
+long prim_minimum_spanning_tree(int **cost, int rows, int columns, int ntrials, Table *line);
 
 #endif

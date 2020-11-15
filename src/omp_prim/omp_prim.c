@@ -2,8 +2,8 @@
 #include <string.h>
 #include <limits.h>
 #include <stdio.h>
+#include <omp.h>
 #include "omp_prim.h"
-#include "omp.h"
 
 Edge *get_minimum_cost_edge(Edge *edges, int nedges)
 {
@@ -21,10 +21,10 @@ Edge *get_minimum_cost_edge(Edge *edges, int nedges)
     return best_edge;
 }
 
-int omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthreads, int ntrials, Table *line)
+long omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthreads, int ntrials, Table *line)
 {
     double partial_time = 0.0;
-    int minimum_cost;
+    long minimum_cost;
 
     for (int i = 0; i < ntrials; i++)
     {
@@ -90,7 +90,7 @@ int omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthrea
             }
         }
 
-        printf("MST cost: %d\n", minimum_cost);
+        printf("MST cost: %ld\n", minimum_cost);
 
         free(vertices_in_mst);
 

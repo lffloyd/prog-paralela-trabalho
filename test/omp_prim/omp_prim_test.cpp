@@ -34,7 +34,7 @@ TEST(OmpPrimTest, GetExpectedCostForMST)
         {6, 8, 5, 0, 9},
         {4, 5, 7, 9, 2}};
 
-    int expected = 9;
+    long expected = 9;
 
     int **dynamic_mtx = create_dynamic_matrix_from_static(mtx);
 
