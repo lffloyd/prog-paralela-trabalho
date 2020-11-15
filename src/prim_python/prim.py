@@ -1,5 +1,10 @@
 #baseado nos tutoriais https://www.geeksforgeeks.org/prims-minimum-spanning-tree-mst-greedy-algo-5/
 #                      https://panda.ime.usp.br/pythonds/static/pythonds_pt/07-Grafos/PrimsSpanningTreeAlgorithm.html
+from time import time
+import sys
+import random
+import csv
+
 class Graph(): 
   
     def __init__(self, vertices): 
@@ -12,10 +17,25 @@ class Graph():
         self.parent[0] = -1 
         self.mstSet = [False] * self.V 
         
+    def generateRandomGraph(self):
+        for i in range(self.V):
+            for j in range(self.V):
+                if i==j:
+                    self.graph[i][j] = 0
+                else:
+                    self.graph[i][j] = random.randint(0, self.V) 
+
+    def printGraph(self):
+        for i in range(self.V):
+            for j in range(self.V):
+                print("{} ".format(self.graph[i][j]),end="")
+            print()
+        print()
+
     def printMST(self): 
         print("Edge \tWeight")
         for i in range(1, self.V): 
-            print(self.parent[i], "-", i, "\t", self.graph[i][self.parent[i]] )
+            print(self.parent[i], "-", i, "\t", self.graph[self.parent[i]][i] )
         
         print("\ntotal cost: {}".format(self.totalCost()))
 
@@ -53,6 +73,7 @@ class Graph():
     def primMST(self):
         for cout in range(self.V): 
             u = self.minKey() 
+            print(u)
             self.mstSet[u] = True
   
             for v in range(self.V): 
@@ -60,16 +81,48 @@ class Graph():
                         self.key[v] = self.graph[u][v] 
                         self.parent[v] = u 
   
-        self.printMST() 
+        #self.printMST()
+    
+    def primParallel(self):
+        print("batata")
 
-g = Graph(5) 
-g.graph = [ [0, 2, 0, 6, 0], 
-            [2, 0, 3, 8, 5], 
-            [0, 3, 0, 0, 7], 
-            [6, 8, 0, 0, 9], 
-            [0, 5, 7, 9, 0]] 
-  
-g.primMST()
+args = sys.argv[1:]
+executionType = args.pop(0)
 
-  
+if executionType == "seq":
+    with open('seq.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["n", "Tempo de Execução"])
+        for arg in args:
+            if(not arg.isdecimal()):
+                print("Tente novamente! Argumento " + arg + " invalido")
+                break
+            else:
+                g = Graph(int(arg)) 
+                g.generateRandomGraph()
+                ini = time()
+                g.primMST()
+                fim = time()
+
+                writer.writerow([arg, fim-ini])
+
+elif executionType == "parallel":
+    with open('parallel.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["n", "Tempo de Execução"])
+        for arg in args:
+            if(not arg.isdecimal()):
+                print("Tente novamente! Argumento " + arg + " invalido")
+                break
+            else:
+                g = Graph(int(arg)) 
+                g.generateRandomGraph()
+                ini = time()
+                g.primParallel()
+                fim = time()
+
+                writer.writerow([arg, fim-ini])
+else:
+    print("Tente novamente! Argumento " + arg + " invalido")
+    
 # Contributed by Divyanshu Mehta 
