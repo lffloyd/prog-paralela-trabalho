@@ -104,6 +104,8 @@ int main(int argc, char *argv[])
     }
     
     free(filename);
+    if (csv_table != NULL)
+        free_table(csv_table);
     
     return 0;
 }
