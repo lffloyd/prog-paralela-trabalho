@@ -6,10 +6,10 @@
 #include "sequential_prim.h"
 
 
-int prim_minimum_spanning_tree(int **cost, int rows, int columns, int ntrials, Table *line)
+long prim_minimum_spanning_tree(int **cost, int rows, int columns, int ntrials, Table *line)
 {
     double partial_time = 0.0;
-    int minimum_cost;
+    long minimum_cost;
     for (int i = 0; i < ntrials; i++)
     {
         clock_t begin = clock();
@@ -50,7 +50,7 @@ int prim_minimum_spanning_tree(int **cost, int rows, int columns, int ntrials, T
 
         free(vertices_in_mst);
 
-        printf("MST cost: %d\n", minimum_cost);
+        printf("MST cost: %ld\n", minimum_cost);
 
         clock_t end = clock();
         partial_time += (double)(end - begin) / CLOCKS_PER_SEC;
