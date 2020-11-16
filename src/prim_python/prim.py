@@ -1,5 +1,8 @@
 #baseado nos tutoriais https://www.geeksforgeeks.org/prims-minimum-spanning-tree-mst-greedy-algo-5/
 #                      https://panda.ime.usp.br/pythonds/static/pythonds_pt/07-Grafos/PrimsSpanningTreeAlgorithm.html
+#                      https://rabernat.github.io/research_computing/parallel-programming-with-mpi-for-python.html
+
+from mpi4py import MPI
 from time import time
 import sys
 import random
@@ -17,6 +20,36 @@ class Graph():
         self.parent[0] = -1 
         self.mstSet = [False] * self.V 
         
+    # def fisherYatesShuffle(self,weights,n):
+    #     for i in range(n):
+    #         j = random.randint(0, n-1)
+    #         temp = weights[i]
+    #         weights[i] = weights[j]
+    #         weights[j] = temp
+        
+    #     return weights
+    
+    # def generateRandomWeights(self):
+    #     weights = []
+    #     n = self.V*self.V
+    #     for i in range(n):
+    #         weights.append(i)
+        
+    #     return self.fisherYatesShuffle(weights,n)
+
+    # def generateRandomGraph(self):
+    #     weights = self.generateRandomWeights()
+
+    #     idx=0
+    #     for i in range(self.V):
+    #         for j in range(self.V):
+    #             if i==j:
+    #                 self.graph[i][j] = 0
+    #             else:
+    #                 self.graph[i][j] = weights[idx]
+                
+    #             idx+=1 
+
     def generateRandomGraph(self):
         for i in range(self.V):
             for j in range(self.V):
@@ -28,7 +61,7 @@ class Graph():
     def printGraph(self):
         for i in range(self.V):
             for j in range(self.V):
-                print("{} ".format(self.graph[i][j]),end="")
+                print("{} ".format(self.graph[i][j]), end="")
             print()
         print()
 
@@ -41,7 +74,7 @@ class Graph():
 
     def minKey(self): 
         min = float("inf")
-  
+
         for v in range(self.V): 
             if self.key[v] < min and self.mstSet[v] == False: 
                 min = self.key[v] 
@@ -73,7 +106,6 @@ class Graph():
     def primMST(self):
         for cout in range(self.V): 
             u = self.minKey() 
-            print(u)
             self.mstSet[u] = True
   
             for v in range(self.V): 
@@ -81,10 +113,10 @@ class Graph():
                         self.key[v] = self.graph[u][v] 
                         self.parent[v] = u 
   
-        #self.printMST()
+        self.printMST()
     
     def primParallel(self):
-        print("batata")
+        
 
 args = sys.argv[1:]
 executionType = args.pop(0)
@@ -107,22 +139,31 @@ if executionType == "seq":
                 writer.writerow([arg, fim-ini])
 
 elif executionType == "parallel":
-    with open('parallel.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["n", "Tempo de Execução"])
-        for arg in args:
-            if(not arg.isdecimal()):
-                print("Tente novamente! Argumento " + arg + " invalido")
-                break
-            else:
-                g = Graph(int(arg)) 
-                g.generateRandomGraph()
-                ini = time()
-                g.primParallel()
-                fim = time()
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
 
-                writer.writerow([arg, fim-ini])
+    g = Graph(int(12)) 
+    g.primParallel()
+
+
+    # with open('parallel.csv', 'w', newline='') as file:
+    #     writer = csv.writer(file)
+    #     writer.writerow(["n", "Tempo de Execução"])
+    #     for arg in args:
+    #         if(not arg.isdecimal()):
+    #             print("Tente novamente! Argumento " + arg + " invalido")
+    #             break
+    #         else:
+    #             g = Graph(int(arg)) 
+    #             g.generateRandomGraph()
+    #             ini = time()
+    #             g.primParallel()
+    #             fim = time()
+
+    #             writer.writerow([arg, fim-ini])
 else:
     print("Tente novamente! Argumento " + arg + " invalido")
     
+
+
 # Contributed by Divyanshu Mehta 
