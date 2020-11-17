@@ -5,7 +5,7 @@
 from mpi4py import MPI
 from time import time
 import sys
-import random
+#import random
 import csv
 
 class Graph(): 
@@ -50,13 +50,16 @@ class Graph():
                 
     #             idx+=1 
 
-    def generateRandomGraph(self):
+    def generateGraph(self):
+        value = 1
         for i in range(self.V):
             for j in range(self.V):
                 if i==j:
                     self.graph[i][j] = 0
-                else:
-                    self.graph[i][j] = random.randint(0, self.V) 
+                elif i>j:
+                    self.graph[i][j] = value
+                    self.graph[j][i] = self.graph[i][j]
+                value += 1
 
     def printGraph(self):
         for i in range(self.V):
@@ -68,7 +71,7 @@ class Graph():
     def printMST(self): 
         print("Edge \tWeight")
         for i in range(1, self.V): 
-            print(self.parent[i], "-", i, "\t", self.graph[self.parent[i]][i] )
+            print(self.parent[i], "-", i, "\t", self.key[i] )
         
         print("\ntotal cost: {}".format(self.totalCost()))
 
@@ -113,57 +116,27 @@ class Graph():
                         self.key[v] = self.graph[u][v] 
                         self.parent[v] = u 
   
-        self.printMST()
+        #self.printMST()
+        print(self.totalCost())
+        #self.printGraph()
     
-    def primParallel(self):
-        
-
 args = sys.argv[1:]
-executionType = args.pop(0)
 
-if executionType == "seq":
-    with open('seq.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(["n", "Tempo de Execução"])
-        for arg in args:
-            if(not arg.isdecimal()):
-                print("Tente novamente! Argumento " + arg + " invalido")
-                break
-            else:
-                g = Graph(int(arg)) 
-                g.generateRandomGraph()
-                ini = time()
-                g.primMST()
-                fim = time()
+with open('seq_python.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["n", "Tempo de Execução"])
+    for arg in args:
+        if(not arg.isdecimal()):
+            print("Tente novamente! Argumento " + arg + " invalido")
+            break
+        else:
+            g = Graph(int(arg)) 
+            g.generateGraph()
+            ini = time()
+            g.primMST()
+            fim = time()
 
-                writer.writerow([arg, fim-ini])
-
-elif executionType == "parallel":
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-
-    g = Graph(int(12)) 
-    g.primParallel()
-
-
-    # with open('parallel.csv', 'w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(["n", "Tempo de Execução"])
-    #     for arg in args:
-    #         if(not arg.isdecimal()):
-    #             print("Tente novamente! Argumento " + arg + " invalido")
-    #             break
-    #         else:
-    #             g = Graph(int(arg)) 
-    #             g.generateRandomGraph()
-    #             ini = time()
-    #             g.primParallel()
-    #             fim = time()
-
-    #             writer.writerow([arg, fim-ini])
-else:
-    print("Tente novamente! Argumento " + arg + " invalido")
-    
+            writer.writerow([arg, fim-ini])
 
 
 # Contributed by Divyanshu Mehta 

@@ -6,20 +6,22 @@
 from mpi4py import MPI
 from time import time
 import sys
-import random
 import csv
 
 
-def generateRandomGraph(V):
+def generateGraph(V):
     graph = [[0 for column in range(V)]  
             for row in range(V)] 
 
+    value = 1
     for i in range(V):
         for j in range(V):
             if i==j:
                 graph[i][j] = 0
-            else:
-                graph[i][j] = random.randint(0, V) 
+            elif i>j:
+                graph[i][j] = value
+                graph[j][i] = graph[i][j]
+            value += 1
 
     return graph
 
@@ -30,165 +32,138 @@ def printGraph(graph):
         print()
     print()
 
-def printMST(self): 
+def printMST(V, parent, key): 
     print("Edge \tWeight")
-    for i in range(1, self.V): 
-        print(self.parent[i], "-", i, "\t", self.graph[self.parent[i]][i] )
+    for i in range(1, V): 
+        print(parent[i], "-", i, "\t", key[i] )
     
-    print("\ntotal cost: {}".format(self.totalCost()))
+    print("\ntotal cost: {}".format(totalCost(V, key)))
+    
+def totalCost(V, key):
+    totalCost = 0
+    for i in range(1, V):
+        totalCost += key[i]
+    return totalCost
 
-def minKey(V, key, mstSet): 
+def minKey(key, mstSet, index, sizeKeys, parent): 
     min = float("inf")
-    min_index = -1
-    for v in range(V): 
+    min_index = float("inf")
+    for v in range(index, sizeKeys): 
         if key[v] < min and mstSet[v] == False: 
             min = key[v] 
             min_index = v 
 
-    candidato = (min_index, min)
-    return candidato
-    
-def totalCost(self):
-    totalCost = 0
-    for i in range(1, self.V):
-        totalCost += self.key[i]
-    return totalCost
+    return [min_index, min, -1] if min_index == float("inf") else [min_index, min, parent[int(min_index)]]
 
-def getAdj(self, u):
-    adj = []
-    for v in range(self.V):
-        if self.graph[u][v] > 0:
-            adj.append(v)
+def updateNeighbors(graph, u, key, mstSet, nkeys, rank, nVertices):
+        
+    for v in range(nkeys):  # 0, 1
+        index = v + (nVertices*rank) # 
+        if graph[v][u] > 0 and mstSet[index] == False and key[index] > graph[v][u]: 
+            key[index] = graph[v][u] 
+            parent[index] = u
+        
+    #print(str(rank) + ": " + str(graph) + "\nkey "+ str(rank) + ": " + str(key) + "\nparent " + str(rank) + ": " + str(parent) + "\nmstSet" +str(rank) + ": " + str(mstSet) + "\n")
 
-    return adj
-    
-def cleanObj(self):
-    self.key = [float("inf")] * self.V 
-    self.key[0] = 0 
-    self.parent = [None] * self.V 
-    self.parent[0] = -1 
-    self.mstSet = [False] * self.V
+#####################################################################################################
+#############################################inicio##################################################
+#####################################################################################################
 
-def primMST(self):
-    for cout in range(self.V): 
-        u = self.minKey() 
-        self.mstSet[u] = True
+args = sys.argv[1:]
 
-        for v in range(self.V): 
-            if self.graph[u][v] > 0 and self.mstSet[v] == False and self.key[v] > self.graph[u][v]: 
-                    self.key[v] = self.graph[u][v] 
-                    self.parent[v] = u 
+with open('parallel_python_n6.csv', 'w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["n", "Tempo de Execução"])
+    for arg in args:
+        if(not arg.isdecimal()):
+            print("Tente novamente! Argumento " + arg + " invalido")
+            break
+        else:
+            V = int(arg) #nro de vertices
 
-    self.printMST()
+            comm = MPI.COMM_WORLD
+            rank = comm.Get_rank()
+            size = comm.Get_size()
+            verticesPorProcesso = int(V/size)
+            index = rank * verticesPorProcesso
 
-def findCandidate(V, key, mst):
-    for _ in range(V):
-        u = minKey(V, key, mst) 
+            if rank == 0:
+                #print("Numero de vertices por rank eh: " + str(verticesPorProcesso))
 
-    return u
+                graph = generateGraph(V)
+                #printGraph(graph)
 
-def primParallel(self):
-        for _ in range(V): 
-            u = self.minKey() 
-        self.mstSet[u] = True
+                key = [float("inf")] * V 
+                key[0] = 0 
 
-        for v in range(self.V): 
-            if self.graph[u][v] > 0 and self.mstSet[v] == False and self.key[v] > self.graph[u][v]: 
-                    self.key[v] = self.graph[u][v] 
-                    self.parent[v] = u 
+                parent = [None] * V 
+                parent[0] = -1 
 
-V = 12 #nro de vertices
+                mstSet = [False] * V 
+            else:
+                graph = None
 
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
-veticesPorProcesso = int(V/size)
+                key = [float("inf")] * V 
+                key[0] = 0 
 
+                parent = [None] * V 
+                parent[0] = -1 
 
-if rank == 0:
-    print("Numero de vertices por rank eh: " + str(veticesPorProcesso))
+                mstSet = [False] * V 
 
-    graph = generateRandomGraph(V)
-    printGraph(graph)
+            graph = comm.bcast(graph, root = 0)
 
-    # dividindo o grafo em chunks
-    chunks = [[] for _ in range(size)]
-    for i, chunk in enumerate(graph):
-        chunks[i % size].append(chunk)
+            if rank == (size -1) and size>1:
+                verticesPorProcesso = V - (verticesPorProcesso*rank)
+                newGraph = []
+                for i in range(verticesPorProcesso):
+                    newGraph.append(graph[i + index]) 
+                graph = newGraph
+            else:
+                newGraph = []
+                for i in range(verticesPorProcesso):
+                    newGraph.append(graph[i + index]) 
+                graph = newGraph
 
-    key = [float("inf")] * veticesPorProcesso 
-    key[0] = 0 
+            comm.barrier()
+            if rank ==0:
+                ini = time()
+            comm.barrier()
 
-    parent = [None] * veticesPorProcesso 
-    parent[0] = -1 
+            for cout in range(V):
+                if rank == (size -1):
+                    candidate = minKey(key, mstSet, index, V, parent)
+                else:
+                    candidate = minKey(key, mstSet, index, index + verticesPorProcesso, parent)
 
-    mstSet = [False] * veticesPorProcesso 
+                recvbuf = comm.gather(candidate, root=0)
 
-elif rank == (size-1):
-    index = rank * veticesPorProcesso
-    countV = V - index
+                if rank == 0:
+                    recvbuf.sort(key=lambda x: x[0])
+                    melhorCandidato = recvbuf[0]
+                    # print(melhorCandidato)
+                    melhorCandidato.append(parent[melhorCandidato[0]])
+                else:
+                    melhorCandidato = None
 
-    key = [float("inf")] * countV 
-    parent = [None] * countV
-    mstSet = [False] * countV
+                melhorCandidato = comm.bcast(melhorCandidato, root = 0)
 
-    graph = None
-    chunks = None
+                key[melhorCandidato[0]] = melhorCandidato[1]
+                parent[melhorCandidato[0]] = melhorCandidato[2]
+                mstSet[melhorCandidato[0]] = True
 
-else:
-    graph = None
-    chunks = None
-    
-    key = [float("inf")] * veticesPorProcesso 
-    parent = [None] * veticesPorProcesso
-    mstSet = [False] * veticesPorProcesso
+                if rank == (size -1):
+                    verticesPorProcesso = V-index
+                
+                updateNeighbors(graph, melhorCandidato[0], key, mstSet, verticesPorProcesso, rank, int(V/size))
 
-graph = comm.scatter(chunks, root=0)
+            comm.barrier()
+            if rank == 0:
+                fim = time()
+                writer.writerow([arg, fim-ini])
+                print(totalCost(V, key))
+                #printMST(V, parent, key)
 
-# comm.Barrier()
-# print(str(rank) + ": " + str(graph))
-# comm.Barrier()
-# print("key "+ str(rank) + ": " + str(key))
-# comm.Barrier()
-# print("parent " + str(rank) + ": " + str(parent))
-# comm.Barrier()
-# print("mstSet" +str(rank) + ": " + str(mstSet))
-# comm.Barrier()
+MPI.Finalize() 
 
-if rank == (size -1):
-    candidate = findCandidate(countV, key, mstSet)
-else:
-    candidate = findCandidate(veticesPorProcesso, key, mstSet)
-
-recvbuf = None
-if rank == 0:
-    recvbuf = [[] for _ in range(size)]
-    
-# perform the Gather:
-comm.Gather(candidate, recvbuf, root=0)
-
-if rank == 0:
-    print("\n_________________________________________________")
-    print(recvbuf)
-
-
-    # with open('parallel.csv', 'w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     writer.writerow(["n", "Tempo de Execução"])
-    #     for arg in args:
-    #         if(not arg.isdecimal()):
-    #             print("Tente novamente! Argumento " + arg + " invalido")
-    #             break
-    #         else:
-    #             g = Graph(int(arg)) 
-    #             g.generateRandomGraph()
-    #             ini = time()
-    #             g.primParallel()
-    #             fim = time()
-
-    #             writer.writerow([arg, fim-ini])
-
-    
-
-
-# Contributed by Divyanshu Mehta 
+# Contributed by Divyanshu Mehta '''
