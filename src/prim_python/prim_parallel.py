@@ -10,7 +10,7 @@ Recebe:
    
 Retorna:
 
- - Um grafo VxV conexo e com pesos de cada aresta diferentes
+ - Um grafo VxV conexo, unidirecional e com pesos de cada aresta diferentes
 
 '''
 def generateGraph(V):
