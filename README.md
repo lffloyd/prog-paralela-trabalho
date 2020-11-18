@@ -10,6 +10,9 @@ Trabalho de implementação da disciplina de Laboratório de Programação Paral
 Execute ```./install.sh``` para obter as dependências do projeto (Google Test).
 
 Para executar os scripts Python, será necessário executar ```./python_install.sh``` para obter as dependências. É necessário possuir Python 3 e Pip pré-instalados para executar tal ação.
+Para instalar o Python v**3.8.2**
+ - windows: https://www.python.org/ftp/python/3.8.2/python-3.8.2-amd64.exe
+ - linux: normalmente ja vem com o python 3.8.2 instalado, verificar a versao do python instalado e se tiver diferente instalar a certa.
 
 ## Build
 Execute ```./build.sh``` para construir o código. Os executáveis serão gerados na pasta ```build``` na raiz do projeto.
@@ -48,6 +51,36 @@ Para executar a versão em MPI do Prim, execute:
 Um exemplo de possível execução para o comando é ilustrado a seguir:
 ```mpiexec -np 4 ./build/src/ProgParalelaTrabalho_run MPI 100 1000 10000 100000```, onde a execução será realizada com 4 processos.
 
-### Links
+### Executando a versão em PYTHON
+
+#### Configurando:
+ - Navegar até o diretório .prog-paralela-trabalho/src/prim_python/
+ - Dentro dessa pasta:
+	 - Criar uma virtualenv, e nela usar o Python.3.8.2: python -m venv “nome_do_ambiente”
+	 - Após isso, na pasta prim_python/ vai ter uma pasta com o nome do ambiente virtual criado, os programas a serem executados e o requirements.txt
+	 - Ativar a virtual env
+	  > No linux é “source nome_do_ambiente/bin/activate” 
+	  > No windows, com o PowerShell aberto: ".{nomeDoAmbienteVirtual}\Scripts\Activate.ps1"
+	 - com o ambiente virtual ativo, rodar “pip install -r requirements.txt”
+   
+#### Executando:
+##### Sequencialmente:
+ - Navegar até o diretório .prog-paralela-trabalho/src/prim_python/
+ - Dentro dessa pasta e com o ambiente virtual ativo:
+```python3 prim.py <lista de tamanhos de matriz quadrada>```, onde a lista de argumentos são inteiros representando os tamanhos n de matrizes a serem geradas para a coleta dos tempos.
+
+Um exemplo de possível execução para o comando é ilustrado a seguir:
+```python3 prim_parallel.py 100 1000 10000 100000```
+
+##### Em paralelo:
+ - Navegar até o diretório .prog-paralela-trabalho/src/prim_python/
+ - Dentro dessa pasta e com o ambiente virtual ativo:
+```mpirun -n <num processos> python3 prim_parallel.py <lista de tamanhos de matriz quadrada>```, onde o número de processos é passado como o parâmetro ```-np``` e por fim são passados os inteiros representando os tamanhos n de matrizes a serem geradas para a coleta dos tempos.
+
+Um exemplo de possível execução para o comando é ilustrado a seguir:
+```mpirun -n 4 python3 prim_parallel.py 100 1000 10000 100000```, onde a execução será realizada com 4 processos.
+
+
+## Links
 * [Estruturando um projeto com CMake e testes unitários](https://raymii.org/s/tutorials/Cpp_project_setup_with_cmake_and_unit_tests.html)
 * [Google Test Primer](https://github.com/google/googletest/blob/master/googletest/docs/primer.md)
