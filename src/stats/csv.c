@@ -2,6 +2,18 @@
 #include <stdio.h>
 #include "csv.h"
 
+/*
+Escreve arquivo CSV a partir da tabela de tempos de execuca
+
+Recebe:
+
+   - table: tabela de tempos de execucao;
+   - filename: nome do arquivo CSV a ser salvo
+
+Retorna:
+
+    - inteiro indicando se operacao falhou (1) ou ocorreu com sucesso (0)
+*/
 int write_csv(Table *table, char *filename) {
     FILE *fp;
 
@@ -24,6 +36,18 @@ int write_csv(Table *table, char *filename) {
     return 0;
 }
 
+/*
+Escreve arquivo CSV a partir da tabela de tempos de execucao da versao MPI do Prim
+
+Recebe:
+
+   - table: tabela de tempos de execucao da versao MPI;
+   - filename: nome do arquivo CSV a ser salvo
+
+Retorna:
+
+    - inteiro indicando se operacao falhou (1) ou ocorreu com sucesso (0)
+*/
 int write_mpi_prim_csv(Table *table, char *filename) {
     FILE *fp;
 

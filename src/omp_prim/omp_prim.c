@@ -5,7 +5,18 @@
 #include <omp.h>
 #include "omp_prim.h"
 
-Edge *get_minimum_cost_edge(Edge *edges, int nedges)
+/*
+Obtem a aresta de menor custo dentro da lista de arestas candidatas passadas.
+
+Recebe:
+
+   - edges: lista de arestas candidatas, cada aresta foi encontrada por um thread em sua area de procura
+
+Retorna:
+
+    - aresta de menor custo encontrada na lista ou NULL caso a lista seja vazia
+*/
+Edge *get_minimum_cost_edge(Edge *edges)
 {
     if (!edges)
         return NULL;
@@ -21,6 +32,22 @@ Edge *get_minimum_cost_edge(Edge *edges, int nedges)
     return best_edge;
 }
 
+/*
+Versao paralela em OpenMP do algoritmo de Prim.
+
+Recebe:
+
+   - cost: matriz de adjacencias contendo os custos de cada aresta;
+   - rows: total de linhas;
+   - columns: total de colunas;
+   - nthreads: numero de threads de execucao a utilizar;
+   - ntrials: numero de repeticoes do cenario, para calculo das medias de tempo de execucao;
+   - line: linha da tabela de resultados a ser preenchida com o tempo de execucao da funcao
+
+Retorna:
+
+    - custo minimo da MST encontrada pelo algoritmo
+*/
 long omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthreads, int ntrials, Table *line)
 {
     double partial_time = 0.0;
@@ -78,7 +105,7 @@ long omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthre
 
             if (edges != NULL)
             {
-                Edge *best_edge = get_minimum_cost_edge(edges, nthreads);
+                Edge *best_edge = get_minimum_cost_edge(edges);
 
                 printf("Selected edge %d:(%d, %d), cost: %d\n", edge_count, best_edge->a, best_edge->b, best_edge->cost);
 
