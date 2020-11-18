@@ -55,7 +55,7 @@ def minKey(key, mstSet, index, sizeKeys, parent):
 
     return [min_index, min, -1] if min_index == float("inf") else [min_index, min, parent[int(min_index)]]
 
-def updateNeighbors(graph, u, key, mstSet, nkeys, rank, nVertices):
+def updateNeighbors(graph, u, key, mstSet, nkeys, rank, nVertices, parent):
         
     for v in range(nkeys):  # 0, 1
         index = v + (nVertices*rank) # 
@@ -71,7 +71,7 @@ def updateNeighbors(graph, u, key, mstSet, nkeys, rank, nVertices):
 
 args = sys.argv[1:]
 
-with open('parallel_python_n6.csv', 'w', newline='') as file:
+with open('parallel_python_n8.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["n", "Tempo de Execução"])
     for arg in args:
@@ -139,10 +139,16 @@ with open('parallel_python_n6.csv', 'w', newline='') as file:
                 recvbuf = comm.gather(candidate, root=0)
 
                 if rank == 0:
-                    recvbuf.sort(key=lambda x: x[0])
-                    melhorCandidato = recvbuf[0]
+                    melhorCandidato = [-1, float("inf"), -1]
+                    for i in range(len(recvbuf)):
+                        if(recvbuf[i][1]<melhorCandidato[1]):
+                            melhorCandidato[0] = recvbuf[i][0]
+                            melhorCandidato[1] = recvbuf[i][1]
+                            melhorCandidato[2] = recvbuf[i][2]
+                    #recvbuf.sort(key=lambda x: x[1])#em vez de dar sort, eu posso só percorrer e pegar o minimo
+                    #melhorCandidato = recvbuf[0]
+                    # melhorCandidato.append(parent[melhorCandidato[0]])
                     # print(melhorCandidato)
-                    melhorCandidato.append(parent[melhorCandidato[0]])
                 else:
                     melhorCandidato = None
 
@@ -155,7 +161,7 @@ with open('parallel_python_n6.csv', 'w', newline='') as file:
                 if rank == (size -1):
                     verticesPorProcesso = V-index
                 
-                updateNeighbors(graph, melhorCandidato[0], key, mstSet, verticesPorProcesso, rank, int(V/size))
+                updateNeighbors(graph, melhorCandidato[0], key, mstSet, verticesPorProcesso, rank, int(V/size),parent)
 
             comm.barrier()
             if rank == 0:
