@@ -1,10 +1,22 @@
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdio.h>
+#include <limits.h>
 #include "matrix_generator.h"
-#include "string.h"
-#include "stdlib.h"
-#include "time.h"
-#include "stdio.h"
-#include "limits.h"
 
+/*
+Randomiza a posição de elementos numa lista de inteiros de acordo com o algoritmo Fisher-Yates (https://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
+
+Recebe:
+
+   - arr: ponteiro para lista de inteiros a ser randomizada;
+   - length: tamanho da lista
+
+Retorna:
+
+    - ponteiro para inicio da lista randomizada
+*/
 int *fisher_yates_shuffle(int *arr, int length)
 {
     srand(time(NULL));
@@ -20,6 +32,17 @@ int *fisher_yates_shuffle(int *arr, int length)
     return arr;
 }
 
+/*
+Gera uma lista randomizada de pesos/custos a serem distribuidos na matriz de adjacencias.
+
+Recebe:
+
+   - n: numero de custos distintos a gerar
+
+Retorna:
+
+    - ponteiro para inicio da lista de custos randomizada
+*/
 int *generate_random_weights(int n)
 {
     int *weights = (int *)malloc(n * sizeof(int));
@@ -30,7 +53,18 @@ int *generate_random_weights(int n)
     return fisher_yates_shuffle(weights, n);
 }
 
-int **generate_matrix(int n) // acho que vou trocr. Só chama na main e nos tests/utils
+/*
+Gera de forma randomizada uma matriz de adjacencias de tamanho nxn
+
+Recebe:
+
+   - n: numero de nos do grafo ou linhas/colunas da matriz
+
+Retorna:
+
+    - ponteiro para inicio da matriz de adjacencias gerada
+*/
+int **generate_matrix(int n)
 {
     int *weights = generate_random_weights((n * n) - n);
 
@@ -84,6 +118,15 @@ int **generate_matrix_test(int n){
     return matrix;
 }
 
+/*
+Exibe uma matriz de adjacencias
+
+Recebe:
+
+   - mtz: ponteiro para inicio da matriz;
+   - rows: num. de linhas;
+   - columns: num. de colunas
+*/
 void show_matrix(int **mtx, int rows, int columns)
 {
     printf("\n");
@@ -100,6 +143,14 @@ void show_matrix(int **mtx, int rows, int columns)
     return;
 }
 
+/*
+Libera uma matriz de adjacencias
+
+Recebe:
+
+   - mtx: ponteiro para inicio da matriz;
+   - rows: num. de linhas da matriz
+*/
 void free_matrix(int **mtx, int rows)
 {
     for (int i = 0; i < rows; i++)

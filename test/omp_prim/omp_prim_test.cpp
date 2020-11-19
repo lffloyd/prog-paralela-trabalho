@@ -8,15 +8,13 @@
 
 TEST(GetMinimumCostEdge, ObtainsEdgeWithMinimumCostFromArray)
 {
-    int n = 3;
-
     Edge *list = create_edge_node(-1, -1, 3);
     Edge *second = create_edge_node(-1, -1, 2);
     list = insert_node(second, list);
     Edge *third = create_edge_node(-1, -1, 1);
     list = insert_node(third, list);
 
-    Edge *result = get_minimum_cost_edge(list, n);
+    Edge *result = get_minimum_cost_edge(list);
 
     int expected = 1;
     EXPECT_EQ(result->cost, expected);

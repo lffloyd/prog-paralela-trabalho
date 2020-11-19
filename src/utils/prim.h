@@ -1,6 +1,16 @@
 #ifndef PRIM_H_
 #define PRIM_H_
 
+/*
+Estrutura que define uma representacao de lista de arestas (ou um no unico).
+
+Campos:
+
+   - a: origem da aresta;
+   - b: destino da aresta;
+   - cost: custo da aresta;
+   - next: ponteiro para proxima aresta na lista (se existir)
+*/
 typedef struct Edge
 {
     int a, b, cost;
