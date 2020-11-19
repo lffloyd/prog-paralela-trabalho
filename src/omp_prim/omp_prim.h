@@ -4,7 +4,7 @@
 #include "../utils/prim.h"
 #include "../stats/stats.h"
 
-Edge *get_minimum_cost_edge(Edge *edges, int nedges);
+Edge *get_minimum_cost_edge(Edge *edges);
 long omp_prim_minimum_spanning_tree(int **cost, int rows, int columns, int nthreads, int ntrials, Table *line);
 
 #endif
