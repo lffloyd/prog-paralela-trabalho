@@ -5,10 +5,11 @@
 #include <unistd.h>
 #include <limits.h>
 #include <string.h>
-#include <mpi.h>
+#include "mpi.h"
 #include "utils/matrix_generator.h"
 #include "prim/sequential_prim.h"
 #include "omp_prim/omp_prim.h"
+#include "mpi_prim/mpi_prim.h"
 #include "stats/stats.h"
 #include "stats/csv.h"
 
@@ -21,7 +22,7 @@ int main(int argc, char *argv[])
 {
     int rank, nprocesses; //For MPI implementation only
 
-    int n_values[10];
+    int n_values[20];
     int nthreads; //For OMP implementation only
     int is_omp_version = 0;
     
@@ -65,19 +66,34 @@ int main(int argc, char *argv[])
             int **mtx = generate_matrix(n);
 
             Table *line = create_simple_line(n, (double)INT_MAX);
-            omp_prim_minimum_spanning_tree(mtx, n, n, nthreads, NTRIALS, line);
+            long minimum_cost = omp_prim_minimum_spanning_tree(mtx, n, n, nthreads, NTRIALS, line);
+            //printf("%ld\n", minimum_cost);
             csv_table = insert_line(line, csv_table);
 
             free_matrix(mtx, n);
         }
     } else if (!strcmp("MPI", version)) {
-        printf("Executing MPI Prim implementation...\n");
-        //TODO
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &nprocesses);
-        printf("Rank - %d, No. processes - %d\n", rank, nprocesses);
+        if (rank==0) printf("Executing MPI Prim implementation...\n");
+        
+        for (int i =0; i<length; i++){
+            int n = n_values[i];
+            int **mtx = generate_matrix_test(n);
+            Table *line = create_line(n, (double)INT_MAX, (double)INT_MAX);
+            double* partial_time = mpi_prim_minimum_spanning_tree(mtx, n, n, rank, nprocesses, NTRIALS, line);
+
+            //line->communication_time = partial_time[0]/NTRIALS;
+            line->execution_time = partial_time[1];
+
+            if (rank==0) printf("Tempo de execução: %f\n", line->execution_time);
+            csv_table = insert_line(line, csv_table);
+
+            free_matrix(mtx, n);
+        }
         MPI_Finalize();
+        
     }
 
     if (stat(RESULTS_DIR, &st) == -1 && ((!strcmp("MPI", version) && rank == 0) || strcmp("MPI", version))) {

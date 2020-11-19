@@ -94,6 +94,30 @@ int **generate_matrix(int n)
     return matrix;
 }
 
+int **generate_matrix_test(int n){
+
+    int **matrix = (int**)malloc(sizeof(int*) * n);
+    for (int i=0; i<n; i++){
+        matrix[i] = (int*)malloc (n*sizeof(int));
+    }
+
+    int idx = 1;
+    for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            if(i == j){
+                matrix[i][j] = 0;
+            }
+            else if (i > j){
+                matrix[i][j] = idx;
+                matrix[j][i] = matrix[i][j];
+            }
+            idx++;
+        }
+    }
+
+    return matrix;
+}
+
 /*
 Exibe uma matriz de adjacencias
 
