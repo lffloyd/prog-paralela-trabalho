@@ -149,110 +149,118 @@ def updateNeighbors(graph, u, key, mstSet, nkeys, rank, nVertices, parent):
 #########################################################################################################################################################################################
 
 args = sys.argv[1:] #Dos argumentos, excluímos o primeiro que é o nome do arquivo para deixar na variável só o array de Número de vértices a serem calculados.
-
-with open('parallel_python_teste.csv', 'w', newline='') as file: #criamos o arquivo.csv para gerar a tabela
-    writer = csv.writer(file)                                 
+NTRIALS = 10
+with open('parallel_python_n8.csv', 'w', newline='') as file: #criamos o arquivo.csv para gerar a tabela
+    writer = csv.writer(file)                              
     writer.writerow(["n", "Tempo de Execução"]) #escrevemos o titulo da tabela no arquivo
     for arg in args: 
         if(not arg.isdecimal()):
             print("Tente novamente! Argumento " + arg + " invalido")
             break
         else:
-            V = int(arg) #nro de vertices
-
             comm = MPI.COMM_WORLD
             rank = comm.Get_rank()
             size = comm.Get_size()
-            verticesPorProcesso = int(V/size)
-            index = rank * verticesPorProcesso
-
-            #instanciamos os arrays que vamos utilizar no programa
-            if rank == 0:
-                graph = generateGraph(V) #Eh criado a matriz de adjascencias 
-                #printGraph(graph)
-                key = [float("inf")] * V 
-                key[0] = 0 
-                parent = [None] * V 
-                parent[0] = -1 
-                mstSet = [False] * V 
-            else:
-                graph = None
-                key = [float("inf")] * V 
-                key[0] = 0 
-                parent = [None] * V 
-                parent[0] = -1 
-                mstSet = [False] * V 
-
-            graph = comm.bcast(graph, root = 0) #Broadcast do grafo criado 
-
-            #Nesse IF-ELSE, fazemos a divisão do grafo para cada processo
-            if rank == (size -1) and size>1:
-                verticesPorProcesso = V - (verticesPorProcesso*rank)
-                newGraph = []
-                for i in range(verticesPorProcesso):
-                    newGraph.append(graph[i + index]) 
-                graph = newGraph
-            else:
-                newGraph = []
-                for i in range(verticesPorProcesso):
-                    newGraph.append(graph[i + index]) 
-                graph = newGraph
-
-            #Após as variáveis serem instanciadas, começamos a contar o tempo de execução do programa
-            comm.barrier()
-            if rank ==0:
-                ini = time()
-            comm.barrier()
-
-            #O programa termina só quando todas as arestas estiverem na MST. Podemos fazer essa verificação de duas formas:
-            #Ou percorrendo o mstSet e verificando se todas as posições estiverem igual a True
-            #Ou simplesmente iterando sob a quantidade de vértices. Porque só inserimos 1 vértice na MST a cada iteração.
-            for cout in range(V):
-                #Cada processo seleciona o seu candidato com menor chave
-                if rank == (size -1):
-                    candidate = minKey(key, mstSet, index, V, parent)
-                else:
-                    candidate = minKey(key, mstSet, index, index + verticesPorProcesso, parent)
-                
-                #reunimos todos os candidatos no vetor de candidatos "recvbuf" no processo de rank = 0
-                recvbuf = comm.gather(candidate, root=0)
-                
-                if rank == 0:
-                    #Instanciamos o melhor candidato para podermos fazer as comparações a partir do seu index
-                    melhorCandidato = [-1, float("inf"), -1]
-
-                    #percorremos o vetor de candidatos para escolher aquele que possui melhor valor de chave
-                    for i in range(len(recvbuf)):
-                        if(recvbuf[i][1]<melhorCandidato[1]):
-                            melhorCandidato[0] = recvbuf[i][0]
-                            melhorCandidato[1] = recvbuf[i][1]
-                            melhorCandidato[2] = recvbuf[i][2]
-                    #Após esse "for" temos o melhor candidato a inserir na MST
-                else:
-                    #precisamos instanciar a variável nos outros processos para fazer o broadcast que vem a seguir
-                    melhorCandidato = None
-
-                #Cada processo recebe o melhor candidato para poder atualizar seus arrays de chave, de pais e de quem está na MST
-                melhorCandidato = comm.bcast(melhorCandidato, root = 0)
-                
-                #Atualiza os arrays
-                key[melhorCandidato[0]] = melhorCandidato[1]
-                parent[melhorCandidato[0]] = melhorCandidato[2]
-                mstSet[melhorCandidato[0]] = True
-
-                #Eh calculado a quantidade de vertices que o ultimo processo terá de lidar
-                if rank == (size -1):
-                    verticesPorProcesso = V-index
-                
-                #Atualizamos os vizinhos do melhor candidato
-                updateNeighbors(graph, melhorCandidato[0], key, mstSet, verticesPorProcesso, rank, int(V/size), parent)
             
+            partial_time = 0.0
+            ini = 0.0
+            fim = 0.0
+            for i in range(NTRIALS):
+                V = int(arg) #nro de vertices
+
+                verticesPorProcesso = int(V/size)
+                index = rank * verticesPorProcesso
+
+                #instanciamos os arrays que vamos utilizar no programa
+                if rank == 0:
+                    graph = generateGraph(V) #Eh criado a matriz de adjascencias 
+                    #printGraph(graph)
+                    key = [float("inf")] * V 
+                    key[0] = 0 
+                    parent = [None] * V 
+                    parent[0] = -1 
+                    mstSet = [False] * V 
+                else:
+                    graph = None
+                    key = [float("inf")] * V 
+                    key[0] = 0 
+                    parent = [None] * V 
+                    parent[0] = -1 
+                    mstSet = [False] * V 
+
+                graph = comm.bcast(graph, root = 0) #Broadcast do grafo criado 
+
+                #Nesse IF-ELSE, fazemos a divisão do grafo para cada processo
+                if rank == (size -1) and size>1:
+                    verticesPorProcesso = V - (verticesPorProcesso*rank)
+                    newGraph = []
+                    for i in range(verticesPorProcesso):
+                        newGraph.append(graph[i + index]) 
+                    graph = newGraph
+                else:
+                    newGraph = []
+                    for i in range(verticesPorProcesso):
+                        newGraph.append(graph[i + index]) 
+                    graph = newGraph
+
+                #Após as variáveis serem instanciadas, começamos a contar o tempo de execução do programa
+                comm.barrier()
+                if rank ==0:
+                    ini = MPI.Wtime() 
+
+                #O programa termina só quando todas as arestas estiverem na MST. Podemos fazer essa verificação de duas formas:
+                #Ou percorrendo o mstSet e verificando se todas as posições estiverem igual a True
+                #Ou simplesmente iterando sob a quantidade de vértices. Porque só inserimos 1 vértice na MST a cada iteração.
+                for cout in range(V):
+                    #Cada processo seleciona o seu candidato com menor chave
+                    if rank == (size -1):
+                        candidate = minKey(key, mstSet, index, V, parent)
+                    else:
+                        candidate = minKey(key, mstSet, index, index + verticesPorProcesso, parent)
+                    
+                    #reunimos todos os candidatos no vetor de candidatos "recvbuf" no processo de rank = 0
+                    recvbuf = comm.gather(candidate, root=0)
+                    
+                    if rank == 0:
+                        #Instanciamos o melhor candidato para podermos fazer as comparações a partir do seu index
+                        melhorCandidato = [-1, float("inf"), -1]
+
+                        #percorremos o vetor de candidatos para escolher aquele que possui melhor valor de chave
+                        for i in range(len(recvbuf)):
+                            if(recvbuf[i][1]<melhorCandidato[1]):
+                                melhorCandidato[0] = recvbuf[i][0]
+                                melhorCandidato[1] = recvbuf[i][1]
+                                melhorCandidato[2] = recvbuf[i][2]
+                        #Após esse "for" temos o melhor candidato a inserir na MST
+                    else:
+                        #precisamos instanciar a variável nos outros processos para fazer o broadcast que vem a seguir
+                        melhorCandidato = None
+
+                    #Cada processo recebe o melhor candidato para poder atualizar seus arrays de chave, de pais e de quem está na MST
+                    melhorCandidato = comm.bcast(melhorCandidato, root = 0)
+                    
+                    #Atualiza os arrays
+                    key[melhorCandidato[0]] = melhorCandidato[1]
+                    parent[melhorCandidato[0]] = melhorCandidato[2]
+                    mstSet[melhorCandidato[0]] = True
+
+                    #Eh calculado a quantidade de vertices que o ultimo processo terá de lidar
+                    if rank == (size -1):
+                        verticesPorProcesso = V-index
+                    
+                    #Atualizamos os vizinhos do melhor candidato
+                    updateNeighbors(graph, melhorCandidato[0], key, mstSet, verticesPorProcesso, rank, int(V/size), parent)
+
+                    comm.barrier()
+                    if rank ==0:
+                        fim = MPI.Wtime()
+                        partial_time += fim-ini 
+
             #Após criar a MST, salvamos o tempo no arquivo .csv (tabela) e printamos na tela o custo dela.
             comm.barrier()
             if rank == 0:
-                fim = time()
-                writer.writerow([arg, fim-ini])
+                partial_time = partial_time/NTRIALS
+                writer.writerow([arg, partial_time])
                 print(totalCost(V, key))
-                #printMST(V, parent, key)
 
 MPI.Finalize() 

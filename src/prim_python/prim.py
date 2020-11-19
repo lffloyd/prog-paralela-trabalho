@@ -117,12 +117,12 @@ class Graph():
                     
         #Após os 2 "fors" temo a nossa MST
         #self.printMST()
-        print(self.totalCost()) #Calcula o custo da MST
+        return self.totalCost() #Calcula o custo da MST
         #self.printGraph()
     
 #Retiramos o nome do programa da lista de argumentos para termos uma lista de numero de vértices
 args = sys.argv[1:]
-
+NTRIALS = 10
 #Abrimos um arquivo para escrita
 with open('seq_python.csv', 'w', newline='') as file:
     writer = csv.writer(file) #instanciamos o objeto que irá escrever nesse arquivo
@@ -132,10 +132,14 @@ with open('seq_python.csv', 'w', newline='') as file:
             print("Tente novamente! Argumento " + arg + " invalido") #da erro e termina o programa
             break
         else: #Caso contrário
-            g = Graph(int(arg)) #instanciamos o grafo com o número de vértices dado na lista
-            g.generateGraph()   #geramos a matriz de custo que irá representar o grafo
-            ini = time()        
-            g.primMST()         #Chamamos o método que dado a matriz de custo, gera a MST
-            fim = time()        
+            partial_time = 0.0
+            for i in range(NTRIALS):
+                g = Graph(int(arg)) #instanciamos o grafo com o número de vértices dado na lista
+                g.generateGraph()   #geramos a matriz de custo que irá representar o grafo
+                partial_time -= time()        
+                cost = g.primMST()         #Chamamos o método que dado a matriz de custo, gera a MST
+                partial_time += time()        
 
-            writer.writerow([arg, fim-ini]) #anotamos no arquivo o nro de vértices e o tempo que custou calcular o MST dado esse nro de vértices
+            print(cost)
+            partial_time = partial_time/NTRIALS
+            writer.writerow([arg, partial_time]) #anotamos no arquivo o nro de vértices e o tempo que custou calcular o MST dado esse nro de vértices
